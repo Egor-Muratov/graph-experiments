@@ -1,0 +1,57 @@
+    internal class Program
+    {
+        public struct Conf_zavisimost 
+        {
+            public string conf_name;        // ссылка 
+            // public double value;
+            public int id_rd;            // ссылка на ряд данных
+        }
+ 
+        public struct Zavisimost
+        {
+            public string fn_name;        // наименование расчетной функции
+            public int count_conf;        // количество конфигураций зависимости
+            public Conf_zavisimost[] config;    // описание конфигурации
+        }
+ 
+        public static double[] rd;         // массив рядов данных
+        public static Zavisimost[] z;        // массив зависимостей
+ 
+        static void Main(string[] args)
+        {
+            int count_zavis = 500000;        // количество зависимостей, для простоты такое же количество и рядов данных
+            rd = new double[count_zavis];            
+            z = new Zavisimost[count_zavis];
+            init_zavisimosti(count_zavis);
+        }
+ 
+        static void init_zavisimosti(int count_zavis)    // инициализация и формирование расчетных зависимостей
+        {
+            Random random = new Random();
+            for (int j = 0; j < count_zavis; j++)
+            {
+                z[j] = new Zavisimost();
+                z[j].fn_name = "summ";
+                z[j].count_conf = 3;
+                z[j].config = new Conf_zavisimost[z[j].count_conf];
+                for (int i = 0; i < z[j].count_conf; i++)
+                {
+                    z[j].config[i] = new Conf_zavisimost();
+                    if ((i + 1) < z[j].count_conf)
+                    {
+                        z[j].config[i].conf_name = "+";
+                        z[j].config[i].id_rd = random.Next(count_zavis);
+                    }
+                    else
+                    {
+                        z[j].config[i].conf_name = "=";
+                        z[j].config[i].id_rd = random.Next(count_zavis);
+                    }
+ 
+                }
+            }
+        }
+    }
+
+
+

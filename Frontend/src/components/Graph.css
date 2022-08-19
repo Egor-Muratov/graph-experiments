@@ -1,0 +1,38 @@
+.node-circle-sel {
+    stroke: bisque;
+    stroke-width: 3px;
+    r: 8;
+    fill: rgb(189, 65, 34);
+}
+.node-circle-nosel {
+    stroke: bisque;
+    stroke-width: 2px;
+    r: 8;
+    fill: rgb(188, 189, 34);
+}
+
+.node-text-sel {
+    fill: honeydew;
+    font-weight: 600;
+    text-transform: uppercase;
+    text-anchor: middle;
+    alignment-baseline: middle;
+    font-size: 7px;
+    font-family: sans-serif;
+}
+
+.node-text-nosel {
+    fill: honeydew;
+    font-weight: 600;
+    text-transform: uppercase;
+    text-anchor: middle;
+    alignment-baseline: middle;
+    font-size: 7px;
+    font-family: sans-serif;
+}
+
+.link-line-base {
+    stroke-width: 3;
+    stroke: bisque;
+    marker-end: url(#arrow-head);
+}
