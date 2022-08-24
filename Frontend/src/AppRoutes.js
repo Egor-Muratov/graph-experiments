@@ -1,8 +1,8 @@
 import { Counter } from "./components/Counter";
 import { FetchData } from "./components/FetchData";
 import { Home } from "./components/Home";
-import { Graph } from "./components/Graph";
 import { TreeTidy } from "./components/TreeTidy";
+import { GraphContainer } from "./components/GraphContainer";
 
 const AppRoutes = [
   {
@@ -19,7 +19,7 @@ const AppRoutes = [
   },
   {
     path: '/graph',
-    element: <Graph/>
+    element: <GraphContainer/>
   },
   {
     path: '/treetidy',
