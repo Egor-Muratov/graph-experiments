@@ -1,3 +1,12 @@
+.loading-placeholder-txt {
+    font-weight: 600;
+    text-transform: uppercase;
+    text-anchor: middle;
+    alignment-baseline: middle;
+    font-size: 12px;
+    font-family: sans-serif;
+}
+
 .node-circle-sel {
     stroke: bisque;
     stroke-width: 3px;

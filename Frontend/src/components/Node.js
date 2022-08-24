@@ -1,10 +1,9 @@
-import React, { Component } from 'react';
-import * as ReactDOM from 'react-dom';
+import React, { PureComponent } from 'react';
 import * as d3 from "d3";
 import FORCE from './d3utils';
 import './Graph.css';
 
-export class Node extends Component {
+export class Node extends PureComponent {
   constructor(props) {
     super(props);
     this.NodeRef = React.createRef();

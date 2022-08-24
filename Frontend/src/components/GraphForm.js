@@ -1,6 +1,6 @@
 import React, { Component, useEffect, useRef } from 'react';
 
-export function GraphSetupForm(props) {
+export function GraphParamControl(props) {
     const FormRef = useRef(null);
     return (
         /* <form className="col-sm input-group" onSubmit={this.addNodeBind}>
@@ -30,7 +30,7 @@ export function GraphSetupForm(props) {
     );
 }
 
-export function GraphOrderForm({name, value, label,...props}) {
+export function GraphOrderControl({name, value, label,...props}) {
     const FormRef = useRef(null);
     return (
         <div ref={FormRef} className="input-group">

@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import FORCE from './d3utils';
 import { Node } from './Node';
 import { NodesLink } from './NodesLink';
-import { GraphOrderForm, GraphSetupForm } from './GraphForm';
-// import ForceGraph3D from 'react-force-graph-3d';
+import { GraphOrderControl, GraphParamControl } from './GraphForm';
 
 export class Graph extends Component {
   constructor(props) {
@@ -23,8 +22,8 @@ export class Graph extends Component {
         { "id": 7, "order": 7, "name": "7" },
         { "id": 8, "order": 8, "name": "8" }],
       links: [{ "id": 0, "name": "Link from node 4 N1", "source": 4, "target": 2 },
-        { "id": 1, "name": "Link from node 8 N1", "source": 8, "target": 0 },
-        { "id": 2, "name": "Link from node 8 N2", "source": 8, "target": 3 }],
+      { "id": 1, "name": "Link from node 8 N1", "source": 8, "target": 0 },
+      { "id": 2, "name": "Link from node 8 N2", "source": 8, "target": 3 }],
       nodesCount: 10,
       minLinks: 0,
       maxLinks: 3,
@@ -44,9 +43,9 @@ export class Graph extends Component {
     this.fetchGraph();
     const data = this.state;
     const height = this.GraphRef.current.clientHeight;
-    this.setState({height: height});
+    this.setState({ height: height });
     const width = this.GraphRef.current.clientWidth;
-    this.setState({width: width});
+    this.setState({ width: width });
     FORCE.initForce(data.nodes, data.links)
     FORCE.tick(this.GraphRef.current)
     FORCE.drag()
@@ -70,7 +69,7 @@ export class Graph extends Component {
   }
 
   async fetchGraph() {
-    this.setState({loading: true});
+    this.setState({ loading: true });
     const response = await fetch(`api/graph/${this.state.nodesCount}/${this.state.minLinks}/${this.state.maxLinks}`);
     const data = await response.json();
     this.setState(
@@ -94,75 +93,79 @@ export class Graph extends Component {
     }));
   }
 
-  renderForm() {
+  render() {
     return (
-      <div className="row row-sm">
-        <GraphSetupForm
+      <div>
+        <div className="row row-sm">
+          <GraphParamControl
             nodesCount={this.state.nodesCount}
             minLinks={this.state.minLinks}
             maxLinks={this.state.maxLinks}
             handleInputBind={this.handleInputBind}
             getNewGraphBind={this.getNewGraphBind}
-        />
-        <GraphOrderForm
-          name="currentOrder"
-          value={this.state.currentOrder}
-          max={this.state.orderLength}
-          label={this.state.hasCycle?"Шаг обхода цикла":"Шаг обхода графа"}
-          onChange={this.handleInputBind}
-          disabled={this.state.loading}
-        />
-      </div>
-    )
-  }
-
-  renderSvg() {
-    var links = this.state.links.map((link) => {
-      return (
-        <NodesLink
-          key={link.id}
-          data={link}
-        />);
-    });
-    var nodes = this.state.nodes.map((node) => {
-      return (
-        <Node
-          data={node}
-          name={node.name}
-          key={node.id}
-          currentOrder={this.state.currentOrder}
-        />);
-    });
-    var arrow = (
-      <defs>
-        <marker id="arrow-head" markerWidth="10" markerHeight="10" refX="6" refY="1" orient="auto">
-          <path d="M0,0 L0,2 L3,1 L0,0" style={{ fill: '#000000' }} />
-        </marker>
-      </defs>);
-
-    var content = this.state.loading ? <g></g> : <></>;
-    // {FORCE.width}
-    // {FORCE.height}
-    return (
-      <svg className="graph" ref={this.GraphRef} width={FORCE.width} height={FORCE.height} viewBox={"0 0 " +this.state.width + " " + this.state.height}>
-        {arrow}
-        {links}
-        {nodes}
-      </svg>
-    );
-
-  }
-
-  render() {
-    return (
-      <div>
-        {this.renderForm()}
-        {this.renderSvg()}
+            disabled={this.state.loading}
+          />
+          <GraphOrderControl
+            name="currentOrder"
+            value={this.state.currentOrder}
+            max={this.state.orderLength}
+            label={this.state.hasCycle ? "Шаг обхода цикла" : "Шаг обхода графа"}
+            onChange={this.handleInputBind}
+            disabled={this.state.loading}
+          />
+        </div>
+        <svg className="graph" ref={this.GraphRef} width={FORCE.width} height={FORCE.height} viewBox={"0 0 " + this.state.width + " " + this.state.height}>
+          <ArrowMemo />
+          {this.state.loading ? <text className={"loading-placeholder-txt"} x={FORCE.width / 2} y={FORCE.height / 4}>loading... </text> : <text></text>}
+          <LinksMemo links={this.state.links} />
+          <NodesMemo nodes={this.state.nodes} currentOrder={this.state.currentOrder} />
+        </svg>
       </div>
     );
   }
 }
 
+const ArrowMemo = React.memo(
+  function Arrow() {
+    return (
+      <defs>
+        <marker id="arrow-head" markerWidth="10" markerHeight="10" refX="6" refY="1" orient="auto">
+          <path d="M0,0 L0,2 L3,1 L0,0" style={{ fill: '#000000' }} />
+        </marker>
+      </defs>
+    )
+  }
+);
+
+const NodesMemo = React.memo(
+  function Nodes({ nodes, currentOrder }) {
+    return (
+      nodes.map((node) => {
+        return (
+          <Node
+            data={node}
+            name={node.name}
+            key={node.id}
+            currentOrder={currentOrder}
+          />)
+      })
+    )
+  }
+);
+
+const LinksMemo = React.memo(
+  function Links({ links }) {
+    return (
+      links.map((link) => {
+        return (
+          <NodesLink
+            key={link.id}
+            data={link}
+          />)
+      })
+    )
+  }
+);
 
 function genRandomTree(N = 300, reverse = false) {
   return {
@@ -175,3 +178,4 @@ function genRandomTree(N = 300, reverse = false) {
       }))
   };
 }
+

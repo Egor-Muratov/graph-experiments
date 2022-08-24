@@ -1,6 +1,4 @@
 import * as d3 from "d3";
-import * as ReactDOM from 'react-dom';
-// import React, { Component } from 'react';
 
 var FORCE = (function(nsp) {
 
@@ -11,10 +9,11 @@ var FORCE = (function(nsp) {
   
       initForce = (nodes, links) => {
         nsp.force = d3.forceSimulation(nodes)
-          .force("charge", d3.forceManyBody().strength(-50))
+          .force("charge", d3.forceManyBody().strength(-30))
           .force("link", d3.forceLink(links).distance(20))
+          // .force("link", d3.forceLink(links).strength(2))
           .force("center", d3.forceCenter().x(nsp.width / 2).y(nsp.height / 2))
-          .force("collide", d3.forceCollide([10]).iterations([2]));
+          .force("collide", d3.forceCollide(10).iterations(5));
       },
   
       enterNode = (selection) => {
@@ -106,9 +105,9 @@ var FORCE = (function(nsp) {
     nsp.updateLink = updateLink;
     nsp.updateGraph = updateGraph;
     nsp.initForce = initForce;
-    nsp.dragStarted = dragStarted;
-    nsp.dragging = dragging;
-    nsp.dragEnded = dragEnded;
+    // nsp.dragStarted = dragStarted;
+    // nsp.dragging = dragging;
+    // nsp.dragEnded = dragEnded;
     nsp.drag = drag;
     nsp.tick = tick;
   
