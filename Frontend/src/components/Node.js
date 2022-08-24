@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import * as d3 from "d3";
-import FORCE from './d3utils';
 import './Graph.css';
 
 export class Node extends PureComponent {
@@ -9,26 +8,24 @@ export class Node extends PureComponent {
     this.NodeRef = React.createRef();
   }
   componentDidMount() {
-    this.d3Node = d3.select(this.NodeRef.current)
-      .datum(this.props.data)
-      .call(FORCE.enterNode)
+    if (this.NodeRef) d3.select(this.NodeRef.current).data([this.props.node])
   }
 
   componentDidUpdate() {
-    this.d3Node.datum(this.props.data)
-      .call(FORCE.updateNode)
+    if (this.NodeRef) d3.select(this.NodeRef.current).data([this.props.node])
   }
 
   render() {
+    console.log(`render ${this.constructor.name}`)
     var selected = this.props.currentOrder 
-                && this.props.data.order 
-                && (this.props.data.order <= this.props.currentOrder) 
+                && this.props.node.order 
+                && (this.props.node.order <= this.props.currentOrder)
     return (
       <g className='node' ref={this.NodeRef}>
         <circle 
           className={selected ? "node-circle-sel" : "node-circle-nosel"} 
-          onClick={this.props.addLink} />
-        <text className={selected ? "node-text-sel" : "node-text-nosel"} >{this.props.data.name}</text>
+          onClick={this.props.addLink}/>
+        <text className={selected ? "node-text-sel" : "node-text-nosel"} >{this.props.node.name}</text>
       </g>
     );
   }

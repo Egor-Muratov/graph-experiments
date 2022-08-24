@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import * as d3 from "d3";
-import FORCE from './d3utils';
 
 export class NodesLink extends PureComponent {
   constructor(props) {
@@ -8,20 +7,18 @@ export class NodesLink extends PureComponent {
     this.LinkRef = React.createRef();
   }
     componentDidMount() {
-      this.d3Link = d3.select(this.LinkRef.current)
-        .datum(this.props.data)
-        .call(FORCE.enterLink);
+      if (this.LinkRef) d3.select(this.LinkRef.current).data([this.props.link]);
     }
-  
+
     componentDidUpdate() {
-      this.d3Link.datum(this.props.data)
-        .call(FORCE.updateLink);
+      if (this.LinkRef) d3.select(this.LinkRef.current).data([this.props.link]);
     }
 
     render() {
+      console.log(`render ${this.constructor.name}`)
       return (
-        <g className='link' ref={this.LinkRef}>
-          <line className='link-line-base'/>
+        <g className='linkGroup' >
+          <line className='link link-line-base' ref={this.LinkRef}/>
         </g>
       );
     }

@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
 import FORCE from './d3utils';
-import { Node } from './Node';
-import { NodesLink } from './NodesLink';
+import * as d3 from 'd3';
+import { NodesLinks } from './NodesLinks';
+import { Nodes } from './Nodes';
 import { GraphOrderControl, GraphParamControl } from './GraphForm';
 
 export class Graph extends Component {
+
+  simulation = null;
+
   constructor(props) {
     super(props)
     this.GraphRef = React.createRef();
@@ -31,8 +35,10 @@ export class Graph extends Component {
       orderLength: 0,
       hasCycle: false,
       loading: true,
-      height: 0,
-      width: 0,
+      displayHeight: 600,
+      displayWidth: 1000,
+      height: 2000,
+      width: 2000,
     }
     this.handleInputBind = this.handleInput.bind(this);
     this.addNodeBind = this.addNode.bind(this);
@@ -42,26 +48,72 @@ export class Graph extends Component {
   componentDidMount() {
     this.fetchGraph();
     const data = this.state;
-    const height = this.GraphRef.current.clientHeight;
-    this.setState({ height: height });
-    const width = this.GraphRef.current.clientWidth;
-    this.setState({ width: width });
-    FORCE.initForce(data.nodes, data.links)
-    FORCE.tick(this.GraphRef.current)
-    FORCE.drag()
+    this.initForce();
+    this.drawTicks();
+    this.addZoomCapabilities();
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.nodes !== this.state.nodes || prevState.links !== this.state.links) {
       const data = this.state;
-      FORCE.initForce(data.nodes, data.links)
-      FORCE.tick(this.GraphRef.current)
-      FORCE.drag()
+      this.initForce();
+      this.drawTicks();
     }
-    // if (prevState.currentOrder !== this.setState.currentOrder) {
-    //   FORCE.setCurrentOrder(this.setState.currentOrder)
-    // }
   }
+
+  initForce = () => {
+    this.simulation = d3
+      .forceSimulation()
+      .nodes(this.state.nodes)
+      .force("charge", d3.forceManyBody().strength(-20))
+      .force("link", d3.forceLink(this.state.links).strength(2).distance(20))
+      // .force("link", d3.forceLink(links).strength(2))
+      .force("center", d3.forceCenter().x(this.state.width / 2).y(this.state.height / 2))
+      .force("collide", d3.forceCollide(10).iterations(5));
+  }
+
+  drawTicks = () => {
+    const nodes = d3.select(this.GraphRef.current).selectAll('.node');
+    const links = d3.select(this.GraphRef.current).selectAll('.link');
+    const {width, height} = this.state;
+
+    if (this.simulation) {
+      this.simulation.on('tick', onTickHandler)
+    }
+    
+    function onTickHandler() {
+      nodes
+        .attr("transform", (d) => "translate(" + d.x + "," + d.y + ")")
+        // .attr('cx', (d) => { return d.x = Math.max(30, Math.min(width - 30, d.x)); })
+        // .attr('cy', (d) => { return d.y = Math.max(30, Math.min(height - 30, d.y)); })
+        .attr('cx', (d) => d.x )
+        .attr('cy', (d) => d.y )
+
+      links
+        .attr("x1", (d) => d.source.x)
+        .attr("y1", (d) => d.source.y)
+        .attr("x2", (d) => d.target.x)
+        .attr("y2", (d) => d.target.y)
+    }
+  }
+
+  addZoomCapabilities = () => {
+    const container = d3.select(this.GraphRef.current)
+    const zoom = d3.zoom().on('zoom', handleZoom);
+
+    container.call(zoom);
+
+    function handleZoom(e) {
+      container.select('svg g')
+        .attr('transform', e.transform);
+    }
+
+    container.call(zoom)
+  }
+
+  restartDrag = () => { if (this.simulation) this.simulation.alphaTarget(0.1).restart() }
+
+  stopDrag = () => { if (this.simulation) this.simulation.alphaTarget(0) }
 
   getNewGraph(e) {
     e.preventDefault();
@@ -94,6 +146,7 @@ export class Graph extends Component {
   }
 
   render() {
+    console.log(`render ${this.constructor.name}`)
     return (
       <div>
         <div className="row row-sm">
@@ -114,11 +167,13 @@ export class Graph extends Component {
             disabled={this.state.loading}
           />
         </div>
-        <svg className="graph" ref={this.GraphRef} width={FORCE.width} height={FORCE.height} viewBox={"0 0 " + this.state.width + " " + this.state.height}>
+        <svg className="graph" ref={this.GraphRef} width={"100%"} height={"100%"} viewBox={"0 0 "+this.state.width+" "+this.state.height}>
           <ArrowMemo />
-          {this.state.loading ? <text className={"loading-placeholder-txt"} x={FORCE.width / 2} y={FORCE.height / 4}>loading... </text> : <text></text>}
-          <LinksMemo links={this.state.links} />
-          <NodesMemo nodes={this.state.nodes} currentOrder={this.state.currentOrder} />
+          <g>
+          {this.state.loading ? <text className={"loading-placeholder-txt"} x={this.state.width / 2} y={this.state.height / 4}>loading... </text> : <text></text>}
+          <NodesLinks links={this.state.links} />
+          <Nodes nodes={this.state.nodes} currentOrder={this.state.currentOrder} restartDrag={this.restartDrag} stopDrag={this.stopDrag} />
+          </g>
         </svg>
       </div>
     );
@@ -137,35 +192,6 @@ const ArrowMemo = React.memo(
   }
 );
 
-const NodesMemo = React.memo(
-  function Nodes({ nodes, currentOrder }) {
-    return (
-      nodes.map((node) => {
-        return (
-          <Node
-            data={node}
-            name={node.name}
-            key={node.id}
-            currentOrder={currentOrder}
-          />)
-      })
-    )
-  }
-);
-
-const LinksMemo = React.memo(
-  function Links({ links }) {
-    return (
-      links.map((link) => {
-        return (
-          <NodesLink
-            key={link.id}
-            data={link}
-          />)
-      })
-    )
-  }
-);
 
 function genRandomTree(N = 300, reverse = false) {
   return {
