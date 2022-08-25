@@ -36,8 +36,7 @@
                 "${workspaceFolder}/Backend/GrafExp.csproj"
             ],
             "problemMatcher": "$msCompile"
-        }
-        ,
+        },
         {
             "label": "watch build",
             "command": "dotnet",
@@ -50,7 +49,41 @@
                 "/consoleloggerparameters:NoSummary"
             ],
             "problemMatcher": "$msCompile",
-            "options": { "cwd": "${workspaceFolder}/Backend/" },
+            "options": {
+                "cwd": "${workspaceFolder}/Backend/"
+            }
+        },
+        {
+            "label": "startReact",
+            "command": "npm",
+            "type": "process",
+            "args": [
+                "start"
+            ],
+            "problemMatcher": [
+                "$jshint"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/Frontend/"
+            }
+        },
+        {
+            "type": "npm",
+            "script": "lint",
+            "path": "Frontend",
+            "problemMatcher": [
+                "$eslint-compact"
+            ],
+            "label": "npm: lint - Frontend",
+            "detail": "eslint ./src/"
+        },
+        {
+            "type": "npm",
+            "script": "start",
+            "path": "Frontend",
+            "problemMatcher": [],
+            "label": "npm: start - Frontend",
+            "detail": "rimraf ./build && react-scripts start"
         }
     ]
 }

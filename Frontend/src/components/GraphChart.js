@@ -13,6 +13,9 @@ export class GraphChart extends PureComponent {
   constructor(props) {
     super(props)
     this.GraphRef = React.createRef();
+    this.stopped = false;
+    this.selected =[];
+
   }
 
   componentDidMount() {
@@ -35,7 +38,7 @@ export class GraphChart extends PureComponent {
       .force("charge", d3.forceManyBody().strength(-20))
       .force("link", d3.forceLink(this.props.links).strength(1).distance(20))
       .force("center", d3.forceCenter().x(this.props.width / 2).y(this.props.height / 2))
-      .force("collide", d3.forceCollide(10).iterations(5));
+      .force("collide", d3.forceCollide(10).iterations(5))
   }
 
   drawTicks = () => {
@@ -67,7 +70,7 @@ export class GraphChart extends PureComponent {
     const container = d3.select(this.GraphRef.current)
     const zoom = d3.zoom().on('zoom', handleZoom);
 
-    container.call(zoom);
+    container.call(zoom).on("dblclick.zoom", null);
 
     function handleZoom(e) {
       container.select('svg g')
@@ -75,12 +78,18 @@ export class GraphChart extends PureComponent {
     }
   }
 
-  restartDrag = () => { if (this.simulation) this.simulation.alphaTarget(0.1).restart() }
+  restartDrag = () => { if (this.simulation) this.simulation.alphaTarget(0.1).restart()}
   stopDrag = () => { if (this.simulation) this.simulation.alphaTarget(0) }
+  stopStartSimulation = () => {
+    this.stopped = !this.stopped;
+    this.stopped ? this.simulation.stop() : this.simulation.restart();
+  }
 
   render() {
     console.log(`render ${this.constructor.name}`)
     return (
+      <div>
+        <button onClick={this.stopStartSimulation}>{this.stopped ? 'Start':'Stop'}</button>
       <svg 
         className="graph"
         ref={this.GraphRef}
@@ -97,9 +106,12 @@ export class GraphChart extends PureComponent {
             currentOrder={this.props.currentOrder} 
             restartDrag={this.restartDrag} 
             stopDrag={this.stopDrag} 
+            delNodeBind={this.props.delNodeBind}
+            addLinkBind={this.props.addLinkBind}
           />
         </g>
       </svg>
+      </div>
     );
   }
 }

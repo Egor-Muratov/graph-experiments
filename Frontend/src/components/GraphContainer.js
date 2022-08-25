@@ -37,6 +37,8 @@ export class GraphContainer extends PureComponent {
         }
         this.handleInputBind = this.handleInput.bind(this);
         this.addNodeBind = this.addNode.bind(this);
+        this.delNodeBind = this.delNode.bind(this);
+        this.addLinkBind = this.addLink.bind(this);
         this.getNewGraphBind = this.getNewGraph.bind(this);
     }
 
@@ -73,6 +75,21 @@ export class GraphContainer extends PureComponent {
           nodes: [...prevState.nodes, { name: this.state.newNodeName, id: prevState.nodes.length + 1, }], newNodeName: ''
         }));
       }
+      delNode(d) {
+        console.log("delNode: ", d.id);
+        let filteredNodes = this.state.nodes.filter( node => node !== d);
+        let filteredLinks = this.state.links.filter( link => link.target !== d && link.source !== d)
+        this.setState({
+          nodes: filteredNodes,
+          links: filteredLinks
+        });
+      }
+
+      addLink(source, target) {
+        this.setState(prevState => ({
+          links: [...prevState.links, { source: source, target: target, id: prevState.links.length + 1, }]
+        }));
+      }
 
     render() {
         return (
@@ -95,7 +112,10 @@ export class GraphContainer extends PureComponent {
                         disabled={this.state.loading}
                     />
                 </div>
-                <GraphChart {...this.state} />
+                <GraphChart 
+                delNodeBind={this.delNodeBind}
+                addLinkBind={this.addLinkBind}
+                {...this.state} />
             </div>
         )
     }
