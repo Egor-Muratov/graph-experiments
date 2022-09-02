@@ -1,11 +1,18 @@
-import { PureComponent } from 'react';
+import React,{ PureComponent } from 'react';
 import { Node } from './Node'
 import * as d3 from 'd3';
 
 export class Nodes extends PureComponent {
-    selectedNodes = [];
+    constructor(props) {
+        super(props);
+        this.NodesRef = React.createRef();
+        this.state = {
+            selectedNode: null
+        };
+      }
 
     componentDidMount() {
+        
         this.drag();
         this.doubleClick();
         this.oneClick();
@@ -16,7 +23,6 @@ export class Nodes extends PureComponent {
             this.doubleClick();
             this.oneClick();
         }
-            
     }
 
     drag = () => {
@@ -28,7 +34,10 @@ export class Nodes extends PureComponent {
             .on("end", onDragEnd))
 
         function onDragStart(event, d) {
-            if (!event.active) props.restartDrag();
+            if (!event.active) {
+                console.log('onDragStart')
+                props.restartDrag();
+            }
             d.fx = d.x;
             d.fy = d.y;
             console.log(`onDragStart node ${d.name}`)
@@ -36,47 +45,42 @@ export class Nodes extends PureComponent {
         function onDrag(event, d) {
             d.fx = event.x;
             d.fy = event.y;
-            // d3.select(this)
-            // .attr("transform", (d) => "translate(" + event.x + "," + event.y + ")")
-            // .attr('cx', (d) => event.x)
-            // .attr('cy', (d) => event.y)
+            d3.select(this)
+            .attr("transform", (d) => "translate(" + event.x + "," + event.y + ")")
+
         }
         function onDragEnd(event, d) {
             if (!event.active) props.stopDrag();
-            // d.x = d.fx;
-            // d.y = d.fy;
             d.fx = null;
             d.fy = null;
         }
     }
 
     doubleClick = () => {
-        const delNodeBind = this.props.delNodeBind;
-        d3.selectAll('.node').on("dblclick",onDoubleClick);
-
-        function onDoubleClick(event, d) {
-            console.log("DoubleClicked: ", d);
-            delNodeBind(d);
-        }
+        d3.selectAll('.node').on("dblclick",(event, d) => {
+            console.log("DoubleClickedNode: ", d);
+            this.props.onDoubleClick(d)
+        });
     }
 
     oneClick = () => {
-        d3.selectAll('.node').on("click", (event,d) => this.clickNode(d));
+        d3.selectAll('.node').on("click", (event,d) => {
+            console.log("DoubleClickedNode: ", d);
+            this.props.onClick(d);
+        })
     }
-
-    clickNode = (d) => { 
-        this.selectedNodes.push(d);
-        console.log("Selected: ", this.selectedNodes);  }
 
     render() {
         console.log(`render ${this.constructor.name}`)
-        const { currentOrder } = this.props;
+        const { currentOrder, selectedNodeId } = this.props;
         const nodes = this.props.nodes.map((node) => {
             return <Node
                 key={node.id}
+                label={node.name}
                 node={node}
-                currentOrder={currentOrder} />
+                inOrder = {node.order < currentOrder}
+                selected = {selectedNodeId == node.id} />
         })
-        return <g className='nodes'>{nodes}</g>
+        return <g className='nodes' ref={this.NodesRef}>{nodes}</g>
     }
 }

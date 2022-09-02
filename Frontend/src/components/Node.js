@@ -8,24 +8,32 @@ export class Node extends PureComponent {
     this.NodeRef = React.createRef();
   }
   componentDidMount() {
-    if (this.NodeRef) d3.select(this.NodeRef.current).data([this.props.node])
+    if (this.NodeRef) {
+      this.d3selection = d3.select(this.NodeRef.current).data([this.props.node])
+      if (this.props.node.startX && this.props.node.startY)
+        this.d3selection.attr("transform", (d) => {
+          d.fx = d.startX
+          d.fy = d.startY
+          return "translate(" + d.fx + "," + d.fy + ")"
+        })
+    }
   }
 
   componentDidUpdate() {
-    if (this.NodeRef) d3.select(this.NodeRef.current).data([this.props.node])
+    this.d3selection.data([this.props.node])
+  }
+  componentWillUnmount() {
+    // this.d3delection.datum([])
   }
 
   render() {
     console.log(`render ${this.constructor.name}`)
-    var selected = this.props.currentOrder 
-                && this.props.node.order 
-                && (this.props.node.order <= this.props.currentOrder)
     return (
       <g className='node' ref={this.NodeRef}>
         <circle 
-          className={selected ? "node-circle-sel" : "node-circle-nosel"} 
-          onClick={this.props.addLink}/>
-        <text className={selected ? "node-text-sel" : "node-text-nosel"} >{this.props.node.name}</text>
+          className={this.props.selected ? "node-circle-sel" : "node-circle-nosel"} 
+          />
+        <text className={this.props.inOrder ? "node-text-sel" : "node-text-nosel"} dx="10" dy="8">{this.props.label}</text>
       </g>
     );
   }
