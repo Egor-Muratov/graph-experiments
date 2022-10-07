@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace MyApp.WeatherForecast.Controllers;
+namespace GraphApp.WeatherForecast.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class WeatherForecastController : ControllerBase

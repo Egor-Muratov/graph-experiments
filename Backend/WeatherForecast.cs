@@ -1,4 +1,4 @@
-namespace MyApp.WeatherForecast;
+namespace GraphApp.WeatherForecast;
 public class WeatherForecast
 {
     public DateTime Date { get; set; }

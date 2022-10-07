@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 // using Microsoft.EntityFrameworkCore;
-using MyApp.GraphExp.Models;
+using GraphApp.Enteties;
 using System.Diagnostics;
-using MyApp.GraphExp.GraphHelpers;
+using GraphApp.GraphHelpers;
 
-namespace MyApp.GraphExp.Controllers;
+namespace GraphApp.Controllers;
 // comment
 [ApiController]
 [Route("api/[controller]")]
@@ -16,10 +16,10 @@ public class GraphController : ControllerBase
     }
     [HttpGet]
     [Route("test")]
-    public Graph GetTestGraph()
+    public Enteties.Graph GetTestGraph()
     {
         Debug.WriteLine("Start GetTestGraph()");
-        var graph = new Graph();
+        var graph = new Enteties.Graph();
         graph.FillTestValues();
         graph.FillOrderWithDfs();
         Debug.WriteLine("Finish GetTestGraph()");
@@ -27,13 +27,13 @@ public class GraphController : ControllerBase
     }
     
     [HttpGet]
-    public Graph GetDefaultGraph()
+    public Enteties.Graph GetDefaultGraph()
     {
         Debug.WriteLine("Start GetDefaultGraph()");
         int nodeCount = 10;
         int minLinks = 0;
         int maxLinks = 3;
-        var graph = new Graph();
+        var graph = new Enteties.Graph();
         graph.FillRandom(nodeCount, minLinks, maxLinks);
         graph.FillOrderWithDfs();
 
@@ -43,10 +43,10 @@ public class GraphController : ControllerBase
 
     [HttpGet]
     [Route("{nodeCount}/{minLinks}/{maxLinks}")]
-    public Graph GetGraph(int NodeCount, int MinLinks, int MaxLinks)
+    public Enteties.Graph GetGraph(int NodeCount, int MinLinks, int MaxLinks)
     {
         Debug.WriteLine("Start GetGraph()");
-        var graph = new Graph();
+        var graph = new Enteties.Graph();
         graph.FillRandomWithoutCycle(NodeCount, MinLinks, MaxLinks);
         graph.FillOrderWithDfs();
         Debug.WriteLine("Finish GetGraph()");

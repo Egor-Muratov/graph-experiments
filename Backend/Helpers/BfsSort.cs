@@ -2,7 +2,7 @@ using GraphApp.Enteties;
 using System.Diagnostics;
 
 namespace GraphApp.Algorithm;
-public class Dfs
+public class Bfs
 {
     private Dictionary<int, bool>? _used;
     private Dictionary<int, List<int>>? _sources;
@@ -12,7 +12,7 @@ public class Dfs
 
     public bool HasCycle { get { return _cycleNode.HasValue; } }
 
-    public Dfs(Enteties.Graph graph)
+    public Bfs(Enteties.Graph graph)
     {
         _sources = graph.Nodes.ToDictionary(x => x.Id, x => new List<int>());
         foreach (var link in graph.Links)
@@ -39,6 +39,26 @@ public class Dfs
         }
     }
 
+    private void dfs(int NodeId) {
+        _used[NodeId] = true;
+
+        foreach (var sourceNodeId in _sources[NodeId]) {
+            if ( HasCycle || _path.Contains(sourceNodeId)) {
+                if (_path.Contains(sourceNodeId)) {
+                    _cycleNode = sourceNodeId;
+                }
+                return;
+            } else if (!_used[sourceNodeId]) {
+                _path.Push(sourceNodeId);
+                dfs(sourceNodeId);
+            }
+        }
+        if (HasCycle) { return; }
+
+        _path.Pop();
+        _order.Enqueue(NodeId);
+    }
+
     public int[] GetCycle()
     {
         if (HasCycle)
@@ -62,30 +82,5 @@ public class Dfs
         }
         else { return new int[0]; }
 
-    }
-    private void dfs(int NodeId)
-    {
-        _used[NodeId] = true;
-
-        foreach (var sourceNodeId in _sources[NodeId])
-        {
-            if ( HasCycle || _path.Contains(sourceNodeId))
-            {
-                if (_path.Contains(sourceNodeId))
-                {
-                    _cycleNode = sourceNodeId;
-                }
-                return;
-            }
-            else if (!_used[sourceNodeId])
-            {
-                _path.Push(sourceNodeId);
-                dfs(sourceNodeId);
-            }
-        }
-        if (HasCycle) { return; }
-
-        _path.Pop();
-        _order.Enqueue(NodeId);
     }
 }
